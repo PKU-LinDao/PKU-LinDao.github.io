@@ -55,11 +55,22 @@
 				$main = $('#main'),
 				$reel = $main.children('.reel'),
 				$slides = $reel.children('.slide'),
-				$controls = $('<nav><span class="previous"></span><span class="next"></span></nav>').appendTo($main),
-				$next = $controls.children('.next'),
-				$previous = $controls.children('.previous'),
+				$controls = $('<nav aria-label="Section navigation"><button type="button" class="slide-previous" aria-label="Previous section"></button><button type="button" class="slide-next" aria-label="Next section"></button></nav>').appendTo($main),
+				$next = $controls.children('.slide-next'),
+				$previous = $controls.children('.slide-previous'),
 				pos = 0,
 				locked = false;
+
+			// Defer offscreen background images until a section is nearby.
+				var loadBackground = function($slide) {
+					if (!$slide.length || $slide.data('background-loaded'))
+						return;
+					$slide.css('background-image', $slide.data('background-image'));
+					$slide.data('background-loaded', true);
+				};
+
+			// Keep offscreen links out of the keyboard and screen-reader order.
+				$slides.not(':first').attr('inert', '').attr('aria-hidden', 'true');
 
 			// Switch function.
 				var switchTo = function(newPos, instant) {
@@ -89,25 +100,33 @@
 
 						// Clear active state.
 							$navItems
-								.removeClass('active');
+								.removeClass('active')
+								.find('a').removeAttr('aria-current');
 
 						// Get new item and activate it.
 							$navItem = $navItems.eq(pos);
 
 							$navItem
-								.addClass('active');
+								.addClass('active')
+								.find('a').attr('aria-current', 'page');
 
 					// Update slides.
 
 						// Clear active state.
 							$slides
-								.removeClass('active');
+								.removeClass('active')
+								.attr('inert', '')
+								.attr('aria-hidden', 'true');
 
 						// Get new slide and activate it.
 							$slide = $slides.eq(pos);
-
+							loadBackground($slide);
+							if (pos > 0) loadBackground($slides.eq(pos - 1));
+							if (pos < $slides.length - 1) loadBackground($slides.eq(pos + 1));
 							$slide
-								.addClass('active');
+								.addClass('active')
+								.removeAttr('inert')
+								.removeAttr('aria-hidden');
 
 					// Update hash.
 						history.replaceState(null, null, (pos == 0 ? '#' : '#' + $slide.attr('id')));
@@ -115,16 +134,10 @@
 					// Update controls.
 
 						// Previous.
-							if (pos == 0)
-								$previous.addClass('disabled');
-							else
-								$previous.removeClass('disabled');
+							$previous.prop('disabled', pos == 0).toggleClass('disabled', pos == 0);
 
 						// Next.
-							if (pos == $slides.length - 1)
-								$next.addClass('disabled');
-							else
-								$next.removeClass('disabled');
+							$next.prop('disabled', pos == $slides.length - 1).toggleClass('disabled', pos == $slides.length - 1);
 
 					// Not instant? Animate to new scroll position.
 						if (instant !== true) {
@@ -154,14 +167,14 @@
 						$img = $this.children('img'),
 						id = $this.attr('id'),
 						position = $img.data('position'),
+						image = $img.attr('src') || $img.attr('data-src'),
 						bg = {
 							image: $this.css('background-image'),
 							size: $this.css('background-size'),
 							position: $this.css('background-position'),
 							repeat: $this.css('background-repeat'),
 							attachment: $this.css('background-attachment')
-						},
-						x;
+						};
 
 					// Set index.
 						$this
@@ -172,24 +185,11 @@
 
 						// Assign image.
 							$this
-								.css('background-image', (bg.image ? bg.image + ',' : '') + 'url("' + $img.attr('src') + '")')
+								.data('background-image', (bg.image ? bg.image + ',' : '') + 'url("' + image + '")')
 								.css('background-size', (bg.size ? bg.size + ',' : '') + 'cover')
 								.css('background-position', (bg.position ? bg.position + ',' : '') + '0% 50%')
 								.css('background-repeat', (bg.repeat ? bg.repeat + ',' : '') + 'no-repeat')
 								.css('background-attachment', (bg.attachment ? bg.attachment + ',' : '') + 'fixed');
-
-						// Hack: IE workaround because it's a crappy browser.
-							if (browser.name == 'ie') {
-
-								x = $this.css('background-image');
-
-								$this.css('background-image', x.replace($img.attr('src'), 'invalid'));
-
-								window.setTimeout(function() {
-									$this.css('background-image', x);
-								}, 100);
-
-							}
 
 						// Hide <img>.
 							$img.hide();
@@ -257,7 +257,9 @@
 			// Window.
 				$window
 					.on('keydown', function(event) {
-
+						if ($(event.target).is('a, button, [contenteditable="true"]')
+						|| $(event.target).closest('.table-wrapper').length)
+							return;
 						var newPos = null;
 
 						switch (event.keyCode) {
