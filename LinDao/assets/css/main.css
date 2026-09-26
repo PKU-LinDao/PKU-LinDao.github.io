@@ -1,4 +1,3 @@
-@import url("font-awesome.min.css");
 @import url("fonts.css");
 
 /*
@@ -945,6 +944,28 @@ input, select, textarea {
 		overflow-x: auto;
 	}
 
+	#activities .table-scroll-hint {
+		display: none;
+	}
+
+	@media screen and (max-width: 736px) {
+		#activities .table-scroll-hint {
+			display: block;
+			margin: 0 0 0.5em;
+			font-size: 0.8em;
+		}
+	}
+
+	#activities .table-wrapper {
+		max-width: 100%;
+		margin-bottom: 2em;
+	}
+
+	#activities .table-wrapper table {
+		min-width: 42rem;
+		margin-bottom: 0;
+	}
+
 	table {
 		margin: 0 0 2em 0;
 		width: 100%;
@@ -1695,7 +1716,27 @@ input, select, textarea {
 				background-size: 60%;
 			}
 
-				#main nav > *:hover {
+			#main nav > button {
+				padding: 0;
+				line-height: normal;
+				letter-spacing: 0;
+				font-size: 1em;
+				border: solid 1px #ffffff !important;
+			}
+
+			#main nav > button:focus-visible,
+			#header nav a:focus-visible,
+			#main .slide a:focus-visible,
+			#activities .table-wrapper:focus-visible {
+				outline: 3px solid #ffffff;
+				outline-offset: 3px;
+			}
+
+			#main .slide > .inner > .content a:focus-visible {
+				outline-color: #2b2b2b;
+			}
+
+			#main nav > *:hover {
 					background-color: rgba(255, 255, 255, 0.2);
 				}
 
@@ -1709,7 +1750,7 @@ input, select, textarea {
 					cursor: default;
 				}
 
-			#main nav > .previous {
+			#main nav > .slide-previous {
 				-moz-transform: scaleX(-1);
 				-webkit-transform: scaleX(-1);
 				-ms-transform: scaleX(-1);
@@ -1815,6 +1856,10 @@ input, select, textarea {
 						border-radius: 0;
 						height: 100%;
 					}
+
+						#main nav > button {
+							border: 0 !important;
+						}
 
 						#main nav > *:hover {
 							background-color: transparent;
