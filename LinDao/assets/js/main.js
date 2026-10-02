@@ -25,8 +25,8 @@
 			xxsmall:  [ null,      '360px'  ]
 		});
 
-	// Play initial animations on page load.
-		$window.on('load', function() {
+	// Play initial animations once the document is ready.
+		$(function() {
 			window.setTimeout(function() {
 				$body.removeClass('is-preload');
 			}, 100);
@@ -304,8 +304,9 @@
 								switchTo(pos, true);
 
 						}, 0);
-					})
-					.on('load', function() {
+					});
+
+				$(function() {
 						setTimeout(function() {
 
 							var h, $slide;
@@ -324,7 +325,7 @@
 								switchTo(pos, true);
 
 						}, 0);
-					});
+				});
 
 				// Parallax.
 					if (settings.parallax)
