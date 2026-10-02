@@ -1,4 +1,4 @@
-@import url("fonts.css");
+@import url("fonts.css?v=6da75a7e0e");
 
 /*
 	Landscape by Pixelarity
@@ -945,15 +945,8 @@ input, select, textarea {
 	}
 
 	#activities .table-scroll-hint {
-		display: none;
-	}
-
-	@media screen and (max-width: 736px) {
-		#activities .table-scroll-hint {
-			display: block;
-			margin: 0 0 0.5em;
-			font-size: 0.8em;
-		}
+		margin: 0 0 0.5em;
+		font-size: 0.8em;
 	}
 
 	#activities .table-wrapper {
